@@ -25,7 +25,12 @@ def list_spec_indices(spec_input_dir: str) -> List[str]:
     return sorted(spec_ids, key=lambda x: int(re.sub(r'[^0-9]', '', x)))
 
 
-def run_batch(range_str: Optional[str], max_attempts: int, num_workers: int = 24) -> Tuple[List[str], List[Tuple[str, str]]]:
+def run_batch(
+    range_str: Optional[str],
+    max_attempts: int,
+    num_workers: int = 24,
+    model_name: Optional[str] = None,
+) -> Tuple[List[str], List[Tuple[str, str]]]:
     """Run batch proof generation
     
     Args:
@@ -36,7 +41,8 @@ def run_batch(range_str: Optional[str], max_attempts: int, num_workers: int = 24
     Returns:
         (successes, failures): Lists of successful and failed specification identifiers
     """
-    spec_ids = list_spec_indices(CoqProofGenerator().spec_input_dir)
+    generator_kwargs = {"model_name": model_name} if model_name else {}
+    spec_ids = list_spec_indices(CoqProofGenerator(**generator_kwargs).spec_input_dir)
     
     # Filter based on numeric part
     if range_str:
@@ -59,7 +65,7 @@ def run_batch(range_str: Optional[str], max_attempts: int, num_workers: int = 24
         """
         try:
             # Each thread creates its own CoqProofGenerator instance
-            gen = CoqProofGenerator()
+            gen = CoqProofGenerator(**generator_kwargs)
             
             input_path = os.path.join(gen.spec_input_dir, f"{spec_id}.v")
             if not os.path.exists(input_path):
@@ -163,10 +169,17 @@ Examples:
         metavar='N',
         help='Number of parallel worker threads (default: 24)'
     )
+    parser.add_argument(
+        '--model',
+        type=str,
+        default=None,
+        metavar='MODEL_NAME',
+        help='Model name used to generate proofs (default: value from config.py)'
+    )
     args = parser.parse_args()
 
     try:
-        successes, failures = run_batch(args.range, args.max_attempts, args.num_workers)
+        successes, failures = run_batch(args.range, args.max_attempts, args.num_workers, args.model)
     except ValueError as e:
         print(f'Error: {e}', file=sys.stderr)
         sys.exit(2)
@@ -185,4 +198,3 @@ Examples:
 
 if __name__ == '__main__':
     main()
-

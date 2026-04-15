@@ -5,6 +5,7 @@ from pathlib import Path
 # TYPE only determines the input directory path, no other logic differences
 TYPE = "human"
 MODEL_NAME = "gpt-4o"
+INPUT_MODEL_NAME = MODEL_NAME
 
 # Paths based on TYPE (TYPE only affects input directory)
 # Use relative paths based on project root (parent of src/)
@@ -28,4 +29,4 @@ class LLMConfig:
     api_key: str = "sk-uTP4bW0qlJ927dODSZ81Ww5QsspvYE2pGRXynvPjf66lXjkS"
     base_url: str = "https://yunwu.ai/v1"
     api_temperature: float = 0.7  # Temperature parameter for API calls
-
+    think_mode_enabled: bool = False

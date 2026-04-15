@@ -11,7 +11,6 @@ from config import (
     LLMConfig,
     TYPE as _TYPE,
     MODEL_NAME as _MODEL_NAME,
-    INPUT_MODEL_NAME as _INPUT_MODEL_NAME,
     DATASET_PATH as _DATASET_PATH,
     SPEC_INPUT_DIR as _SPEC_INPUT_DIR,
     SPEC_OUTPUT_DIR as _SPEC_OUTPUT_DIR,
@@ -31,9 +30,9 @@ class CoqProofGenerator:
         spec_input_dir: str = _SPEC_INPUT_DIR,
         spec_output_dir: str = _SPEC_OUTPUT_DIR,
         max_iterations: int = _MAX_ITERATIONS,
+        model_name: str = _MODEL_NAME,
     ):
-        self.model_name = _MODEL_NAME
-        self.input_model_name = _INPUT_MODEL_NAME
+        self.model_name = model_name
         self.type_name = _TYPE
         self.root_dir = _ROOT_DIR
         self.dataset_path = dataset_path
@@ -293,9 +292,16 @@ Examples:
         metavar='N',
         help=f'Maximum number of attempts (default: {_MAX_ITERATIONS})'
     )
+    parser.add_argument(
+        '--model',
+        type=str,
+        default=_MODEL_NAME,
+        metavar='MODEL_NAME',
+        help=f'Model name used to generate proofs (default: {_MODEL_NAME})'
+    )
     args = parser.parse_args()
     
-    generator = CoqProofGenerator()
+    generator = CoqProofGenerator(model_name=args.model)
     proof = generator.generate_proof_for_spec(args.spec_id, args.max_attempts)
     
     if args.output:
@@ -308,4 +314,3 @@ Examples:
 
 if __name__ == '__main__':
     main()
-

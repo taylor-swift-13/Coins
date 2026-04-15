@@ -18,6 +18,7 @@ coins/
 │   ├── verify.py                 # Coq verification tool
 │   ├── proof_gen.py              # Single specification proof generation
 │   ├── batch_proof_gen.py        # Batch proof generation
+│   ├── spec_gen.py               # Coq specification generation from HumanEval
 │   ├── tester.py                 # Test case verifier
 │   ├── negative_proof.py         # Single specification negative testing
 │   ├── negative_batch_proof.py   # Batch negative testing
@@ -94,7 +95,19 @@ python3 src/proof_gen.py 1_ --max-attempts 5
 python3 src/proof_gen.py 42 --output proof.v
 ```
 
-### 2. Batch Proof Generation (batch_proof_gen.py)
+### 2. Spec Generation (spec_gen.py)
+
+Generates Coq specifications from HumanEval-style JSONL tasks.
+
+```bash
+# Generate a single spec with reference implementation in the prompt
+python3 src/spec_gen.py --model gpt-4o --type llm --spec 0
+
+# Generate a single spec without reference implementation in the prompt
+python3 src/spec_gen.py --model gpt-4o --type llm --spec 0 --without-reference-impl
+```
+
+### 3. Batch Proof Generation (batch_proof_gen.py)
 
 Parallel processing of multiple specification proofs.
 
@@ -109,7 +122,7 @@ python3 src/batch_proof_gen.py --range 1:100 --num-workers 16
 python3 src/batch_proof_gen.py --range 1:50 --max-attempts 5
 ```
 
-### 3. Test Verification (tester.py)
+### 4. Test Verification (tester.py)
 
 Verifies multiple test cases for a specification.
 
@@ -121,7 +134,7 @@ python3 src/tester.py 1
 python3 src/tester.py 1_ --max-attempts 5
 ```
 
-### 4. Coq Verification (verify.py)
+### 5. Coq Verification (verify.py)
 
 Verifies the correctness of Coq files.
 
@@ -133,7 +146,7 @@ python3 src/verify.py --file spec/1.v
 python3 src/verify.py --batch --directory ./spec --range 1:10
 ```
 
-### 5. Negative Testing (negative_proof.py / negative_batch_proof.py)
+### 6. Negative Testing (negative_proof.py / negative_batch_proof.py)
 
 Tests specification robustness against negative test cases. If all negative proofs fail, the specification is considered robust.
 
@@ -145,7 +158,7 @@ python3 src/negative_proof.py --spec-id 42
 python3 src/negative_batch_proof.py --range 1:10 --num-workers 8
 ```
 
-### 6. Implication Proofs (equiv_proof_gen.py / equiv_proof_batch.py)
+### 7. Implication Proofs (equiv_proof_gen.py / equiv_proof_batch.py)
 
 Generates implication proofs between two specifications, used to compare human-written and LLM-generated specifications.
 
@@ -163,7 +176,7 @@ python3 src/equiv_proof_gen.py --all
 python3 src/equiv_proof_batch.py --model gemini-3-pro-preview
 ```
 
-### 7. Test Case Extraction (extract_pairs.py)
+### 8. Test Case Extraction (extract_pairs.py)
 
 Extracts input-output pairs from HumanEval dataset.
 
