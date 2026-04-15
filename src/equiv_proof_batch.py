@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Batch script to run equl_proof_gen.py
+Batch script to run equiv_proof_gen.py
 Uses hardcoded spec_id list
 """
 import subprocess
@@ -24,9 +24,9 @@ SPEC_ID_LIST_UNDERSCORE = [
 ]
 
 
-def run_equl_proof(spec_id: str, model_name: str = None, max_attempts: int = 3):
-    """Run equl_proof_gen.py for a single spec_id (using iso directory)"""
-    script_path = os.path.join(os.path.dirname(__file__), "equl_proof_gen.py")
+def run_equiv_proof(spec_id: str, model_name: str = None, max_attempts: int = 3):
+    """Run equiv_proof_gen.py for a single spec_id (using equiv directory)"""
+    script_path = os.path.join(os.path.dirname(__file__), "equiv_proof_gen.py")
     
     cmd = ["python3", script_path, "--spec", spec_id]
     
@@ -54,7 +54,7 @@ def main():
     import argparse
     
     parser = argparse.ArgumentParser(
-        description='Batch run equl_proof_gen.py',
+        description='Batch run equiv_proof_gen.py',
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument(
@@ -62,7 +62,7 @@ def main():
         type=str,
         default=None,
         metavar='MODEL_NAME',
-        help='Model name (if not specified, uses default from equl_proof_gen.py)'
+        help='Model name (if not specified, uses default from equiv_proof_gen.py)'
     )
     parser.add_argument(
         '--max-attempts',
@@ -79,28 +79,28 @@ def main():
     
     args = parser.parse_args()
     
-    # Hardcoded to use iso directory, only process if files exist in both directories
-    iso_human_dir = os.path.join(os.path.dirname(__file__), "..", "iso", "input", "human")
-    iso_llm_dir = os.path.join(os.path.dirname(__file__), "..", "iso", "input", "llm")
+    # Hardcoded to use equiv directory, only process if files exist in both directories
+    equiv_human_dir = os.path.join(os.path.dirname(__file__), "..", "equiv", "input", "human")
+    equiv_llm_dir = os.path.join(os.path.dirname(__file__), "..", "equiv", "input", "llm")
     
     human_specs = set()
     llm_specs = set()
     
-    if os.path.exists(iso_human_dir):
-        for f in os.listdir(iso_human_dir):
+    if os.path.exists(equiv_human_dir):
+        for f in os.listdir(equiv_human_dir):
             if f.endswith('.v'):
                 spec_id = f[:-2]
                 human_specs.add(spec_id)
-    
-    if os.path.exists(iso_llm_dir):
-        for f in os.listdir(iso_llm_dir):
+
+    if os.path.exists(equiv_llm_dir):
+        for f in os.listdir(equiv_llm_dir):
             if f.endswith('.v'):
                 spec_id = f[:-2]
                 llm_specs.add(spec_id)
     
     # Only process if files exist in both directories
     spec_ids = sorted(human_specs & llm_specs, key=lambda x: int(re.sub(r'[^0-9]', '', x)) if re.sub(r'[^0-9]', '', x) else 0)
-    print(f"Using iso directory mode")
+    print(f"Using equiv directory mode")
     print(f"human directory file count: {len(human_specs)}")
     print(f"llm directory file count: {len(llm_specs)}")
     print(f"Common files count: {len(spec_ids)}")
@@ -113,7 +113,7 @@ def main():
     fail_count = 0
     
     for spec_id in spec_ids:
-        success = run_equl_proof(spec_id, args.model, args.max_attempts)
+        success = run_equiv_proof(spec_id, args.model, args.max_attempts)
         if success:
             success_count += 1
         else:
@@ -131,4 +131,3 @@ def main():
 
 if __name__ == '__main__':
     sys.exit(main())
-

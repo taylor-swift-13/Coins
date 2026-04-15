@@ -21,8 +21,8 @@ coins/
 │   ├── tester.py                 # Test case verifier
 │   ├── negative_proof.py         # Single specification negative testing
 │   ├── negative_batch_proof.py   # Batch negative testing
-│   ├── equl_proof_gen.py         # Specification implication proof generation
-│   └── equl_proof_batch.py       # Batch implication proof generation
+│   ├── equiv_proof_gen.py        # Specification implication proof generation
+│   └── equiv_proof_batch.py      # Batch implication proof generation
 ├── spec/                         # Specification files organized by source
 │   ├── human/                    # Human-written specifications
 │   ├── gemini-3-pro-preview/     # Gemini 3 Pro generated specs
@@ -31,7 +31,7 @@ coins/
 │   ├── claude-3-7-sonnet-*/      # Claude 3.7 Sonnet generated specs
 │   ├── claude-opus-4-5-*/        # Claude Opus 4.5 generated specs
 │   └── deepseek-v3.1/            # DeepSeek v3.1 generated specs
-├── equ/                          # Equivalence/implication proofs
+├── equiv/                        # Equivalence/implication proofs
 │   ├── input/                    # Input specs (human/, llm/)
 │   └── output/                   # Generated implication proofs
 ├── negative/                     # Negative cases testing
@@ -145,22 +145,22 @@ python3 src/negative_proof.py --spec-id 42
 python3 src/negative_batch_proof.py --range 1:10 --num-workers 8
 ```
 
-### 6. Implication Proofs (equl_proof_gen.py / equl_proof_batch.py)
+### 6. Implication Proofs (equiv_proof_gen.py / equiv_proof_batch.py)
 
 Generates implication proofs between two specifications, used to compare human-written and LLM-generated specifications.
 
 ```bash
 # Generate implication proof for single spec
-python3 src/equl_proof_gen.py --spec 1
+python3 src/equiv_proof_gen.py --spec 1
 
 # Specify model to use
-python3 src/equl_proof_gen.py --spec 122 --model gpt-4o
+python3 src/equiv_proof_gen.py --spec 122 --model gpt-4o
 
 # Generate proofs for all available specs
-python3 src/equl_proof_gen.py --all
+python3 src/equiv_proof_gen.py --all
 
 # Batch processing
-python3 src/equl_proof_batch.py --model gemini-3-pro-preview
+python3 src/equiv_proof_batch.py --model gemini-3-pro-preview
 ```
 
 ### 7. Test Case Extraction (extract_pairs.py)
@@ -209,13 +209,13 @@ Any proof succeeded? → BAD (spec too weak)
 ### 3. Implication Verification Workflow
 
 ```
-Human spec (equ/input/human/*.v)
-LLM spec (equ/input/llm/*.v)
+Human spec (equiv/input/human/*.v)
+LLM spec (equiv/input/llm/*.v)
         ↓
 Generate human → llm proof (*_l.v)
 Generate llm → human proof (*_r.v)
         ↓
-Output to equ/output/
+Output to equiv/output/
 ```
 
 ## Directory Conventions
@@ -226,9 +226,9 @@ Output to equ/output/
 | `spec/human/` | Human-written specifications |
 | `negative/input/{model}/` | Negative testing input |
 | `negative/negative_cases.jsonl` | Negative test cases data |
-| `equ/input/human/` | Human-written specifications for equivalence |
-| `equ/input/llm/` | LLM-generated specifications for equivalence |
-| `equ/output/` | Implication proofs |
+| `equiv/input/human/` | Human-written specifications for equivalence |
+| `equiv/input/llm/` | LLM-generated specifications for equivalence |
+| `equiv/output/` | Implication proofs |
 | `log/` | Runtime logs |
 
 ## File Naming Conventions

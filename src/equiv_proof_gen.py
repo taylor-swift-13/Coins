@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
 Generate implication proof script between two specs
-- Input: iso/input/human/id.v and iso/input/llm/id.v
+- Input: equiv/input/human/id.v and equiv/input/llm/id.v
 - Output:
-  - iso/output/id_l.v: proof that human implies llm
-  - iso/output/id_r.v: proof that llm implies human
+  - equiv/output/id_l.v: proof that human implies llm
+  - equiv/output/id_r.v: proof that llm implies human
 """
 import argparse
 import os
@@ -19,22 +19,22 @@ from llm import Chatbot
 from logger import get_logger
 
 
-class EqulProofGenerator:
+class EquivProofGenerator:
     """Generator for implication proofs between two specs"""
     
     def __init__(self, model_name: str = _MODEL_NAME):
         self.model_name = model_name
         
-        # Hardcoded to use iso directory
+        # Hardcoded to use equiv directory
         script_dir = Path(__file__).parent.parent
-        iso_dir = script_dir / "iso"
-        self.root_dir = str(iso_dir)
+        equiv_dir = script_dir / "equiv"
+        self.root_dir = str(equiv_dir)
         self.human_input_dir = os.path.join(self.root_dir, "input", "human")
         self.llm_input_dir = os.path.join(self.root_dir, "input", "llm")
-        self.equl_output_dir = os.path.join(self.root_dir, "output")
+        self.equiv_output_dir = os.path.join(self.root_dir, "output")
 
         # Ensure output directory exists
-        os.makedirs(self.equl_output_dir, exist_ok=True)
+        os.makedirs(self.equiv_output_dir, exist_ok=True)
         
         # Initialize LLM
         self.llm_config = LLMConfig(api_model=self.model_name)
@@ -166,7 +166,7 @@ Please fix the proof based on this error information and generate a corrected ve
         """
         # Initialize logger
         numeric_id = int(re.sub(r'[^0-9]', '', spec_id)) if spec_id else 0
-        self.logger = get_logger(model_name=f"{self.model_name}", spec_id=numeric_id, test_id=0, type_name="equl")
+        self.logger = get_logger(model_name=f"{self.model_name}", spec_id=numeric_id, test_id=0, type_name="equiv")
         
         # Read both spec files
         human_spec_path = os.path.join(self.human_input_dir, f"{spec_id}.v")
@@ -183,7 +183,7 @@ Please fix the proof based on this error information and generate a corrected ve
         
         # Generate l direction proof (human -> llm)
         l_proof_success = False
-        l_output_path = os.path.join(self.equl_output_dir, f"{spec_id}_l.v")
+        l_output_path = os.path.join(self.equiv_output_dir, f"{spec_id}_l.v")
         
         if self.logger:
             self.logger.info(f"Generating proof for {spec_id}_l.v (human -> llm)")
@@ -220,7 +220,7 @@ Please fix the proof based on this error information and generate a corrected ve
         
         # Generate r direction proof (llm -> human)
         r_proof_success = False
-        r_output_path = os.path.join(self.equl_output_dir, f"{spec_id}_r.v")
+        r_output_path = os.path.join(self.equiv_output_dir, f"{spec_id}_r.v")
         
         if self.logger:
             self.logger.info(f"Generating proof for {spec_id}_r.v (llm -> human)")
@@ -301,7 +301,7 @@ Examples:
     if not args.spec and not args.all:
         parser.error("Must specify --spec or --all")
     
-    generator = EqulProofGenerator(model_name=args.model)
+    generator = EquivProofGenerator(model_name=args.model)
     
     if args.all:
         # Get all available spec_ids
@@ -364,4 +364,3 @@ Examples:
 
 if __name__ == '__main__':
     sys.exit(main())
-
