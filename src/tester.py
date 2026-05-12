@@ -22,7 +22,6 @@ class CoqTester:
         self.spec_bad_dir = self.generator.spec_bad_dir
         self.root_dir = self.generator.root_dir
         self.model_name = self.generator.model_name
-        self.input_model_name = self.generator.input_model_name
         self.logger = None  # Will be initialized when needed
     
     def read_existing_proof(self, spec_id: str) -> str:
@@ -362,4 +361,3 @@ def sat():
 if __name__ == '__main__':
     # main()
     sat()
-

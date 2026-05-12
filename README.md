@@ -24,14 +24,19 @@ coins/
 │   ├── negative_batch_proof.py   # Batch negative testing
 │   ├── equiv_proof_gen.py        # Specification implication proof generation
 │   └── equiv_proof_batch.py      # Batch implication proof generation
-├── spec/                         # Specification files organized by source
-│   ├── human/                    # Human-written specifications
-│   ├── gemini-3-pro-preview/     # Gemini 3 Pro generated specs
-│   ├── gpt-4o/                   # GPT-4o generated specs
-│   ├── gpt-5/                    # GPT-5 generated specs
-│   ├── claude-3-7-sonnet-*/      # Claude 3.7 Sonnet generated specs
-│   ├── claude-opus-4-5-*/        # Claude Opus 4.5 generated specs
-│   └── deepseek-v3.1/            # DeepSeek v3.1 generated specs
+├── spec/                         # Specifications, proofs, tests, and model outputs
+│   ├── human/
+│   │   ├── input/                # Human-written input specs
+│   │   ├── output/               # Proofs for human specs
+│   │   ├── test/                 # Additional test proofs
+│   │   ├── bad/                  # Failed proofs
+│   │   └── pass_all/             # Specs that passed all tests
+│   ├── gpt-4o/, gpt-5/, gemini-3-pro-preview/, claude-opus-4-5-20251101/, ...
+│   │   ├── input/
+│   │   ├── output/
+│   │   ├── test/
+│   │   ├── bad/
+│   │   └── pass_all/
 ├── equiv/                        # Equivalence/implication proofs
 │   ├── input/                    # Input specs (human/, llm/)
 │   └── output/                   # Generated implication proofs
@@ -60,22 +65,17 @@ pip install openai
 Configuration file is located at `src/config.py`:
 
 ```python
-# Type setting (affects input directory path)
 TYPE = "human"
+MODEL_NAME = "gpt-4o"
+DATASET_PATH = "<repo-root>/HumanEvalPlus.jsonl"
 
-# Model configuration
-MODEL_NAME = "gemini-3-pro-preview"
-
-# Dataset path
-DATASET_PATH = "/home/yangfp/HumanEval/HumanEvalPlus.jsonl"
-
-
-# LLM API configuration
-LLMConfig:
-    api_model: str           # API model name
-    api_key: str             # API key
-    base_url: str            # API base URL
-    api_temperature: float   # Temperature parameter
+@dataclass
+class LLMConfig:
+    use_api_model: bool = True
+    api_model: str = "gemini-3-pro-preview"
+    api_key: str = "<api-key>"
+    base_url: str = "<base-url>"
+    api_temperature: float = 0.7
 ```
 
 ## Core Modules
@@ -124,14 +124,14 @@ python3 src/batch_proof_gen.py --range 1:50 --max-attempts 5
 
 ### 4. Test Verification (tester.py)
 
-Verifies multiple test cases for a specification.
+Current script entry prints the number of available test cases for a specification.
 
 ```bash
 # Check test case count for specification
 python3 src/tester.py 1
 
-# Specify max attempts
-python3 src/tester.py 1_ --max-attempts 5
+# Underscore variant
+python3 src/tester.py 1_
 ```
 
 ### 5. Coq Verification (verify.py)
@@ -140,10 +140,10 @@ Verifies the correctness of Coq files.
 
 ```bash
 # Verify single file
-python3 src/verify.py --file spec/1.v
+python3 src/verify.py --file spec/human/input/1.v
 
 # Batch verify files in directory
-python3 src/verify.py --batch --directory ./spec --range 1:10
+python3 src/verify.py --batch --directory spec/gpt-4o/output/gpt-4o --range 1:10
 ```
 
 ### 6. Negative Testing (negative_proof.py / negative_batch_proof.py)
@@ -235,8 +235,11 @@ Output to equiv/output/
 
 | Directory | Purpose |
 |-----------|---------|
-| `spec/{model}/` | Coq specification files organized by model |
-| `spec/human/` | Human-written specifications |
+| `spec/{model}/input/` | Generated or human-written input specs |
+| `spec/{model}/output/` | Proofs generated from the input specs |
+| `spec/{model}/test/` | Proofs for additional test cases |
+| `spec/{model}/bad/` | Failed proofs |
+| `spec/{model}/pass_all/` | Specs that passed all tests |
 | `negative/input/{model}/` | Negative testing input |
 | `negative/negative_cases.jsonl` | Negative test cases data |
 | `equiv/input/human/` | Human-written specifications for equivalence |
@@ -247,7 +250,7 @@ Output to equiv/output/
 ## File Naming Conventions
 
 - `{id}.v` - Standard specification file (e.g., `1.v`, `42.v`)
-- `{id}_.v` - Underscore version (variant specification, e.g., `1_.v`, `137_.v`)
+- `{id}_.v` - Inductive specification (e.g., `1_.v`, `137_.v`)
 - `{id}_l.v` - Left implication proof (human → llm)
 - `{id}_r.v` - Right implication proof (llm → human)
 - `{id}_{n}.v` - Negative test proof (nth negative case)
